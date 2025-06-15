@@ -3,13 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FII/DII Money Flow Tracker</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Stock Money Flow</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f4f4f4;
+    }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .change {
+      color: green;
+    }
+    .change.negative {
+      color: red;
+    }
+  </style>
 </head>
 <body>
-  <h1>📈 FII / DII Money Flow</h1>
-  <canvas id="moneyChart" width="400" height="200"></canvas>
-  <script src="script.js"></script>
+  <div class="card">
+    <h2 id="name">Loading...</h2>
+    <div class="price" id="price">--</div>
+    <div id="change" class="change">--</div>
+    <p id="datetime">--</p>
+  </div>
+
+  <script>
+    async function loadStockData() {
+      try {
+        const response = await fetch("/api/stock?symbol=NSE:TCS");
+        const data = await response.json();
+
+        document.getElementById("name").textContent = data.name;
+        document.getElementById("price").textContent = `₹ ${data.price}`;
+        document.getElementById("change").textContent = `${data.change}%`;
+        document.getElementById("datetime").textContent = `Updated at ${data.datetime}`;
+
+        const changeEl = document.getElementById("change");
+        if (parseFloat(data.change) < 0) {
+          changeEl.classList.add("negative");
+        } else {
+          changeEl.classList.remove("negative");
+        }
+      } catch (error) {
+        document.getElementById("name").textContent = "Error loading data.";
+      }
+    }
+
+    loadStockData();
+  </script>
 </body>
 </html>
+
